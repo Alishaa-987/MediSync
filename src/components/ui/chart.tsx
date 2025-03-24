@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
@@ -353,6 +354,110 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config]
 }
 
+// Add BarChart Component
+const BarChart = ({
+  data = [],
+  index,
+  categories,
+  colors,
+  valueFormatter,
+  startAt = "zero", // "zero" | "data-min",
+  showAnimation = true,
+  showLegend = false,
+  showGradient = false,
+  showXAxis = true,
+  showYAxis = true,
+  yAxisWidth = 56,
+  stack = false,
+  ...props
+}: {
+  data: any[];
+  index: string;
+  categories: string[];
+  colors?: string[];
+  valueFormatter?: (value: number) => string;
+  startAt?: "zero" | "data-min";
+  showAnimation?: boolean;
+  showLegend?: boolean;
+  showGradient?: boolean;
+  showXAxis?: boolean;
+  showYAxis?: boolean;
+  yAxisWidth?: number;
+  stack?: boolean;
+  [key: string]: any;
+}) => {
+  const defaultColors = ["#84cc16", "#22c55e", "#0ea5e9", "#6366f1", "#f43f5e", "#f59e0b"];
+  const finalColors = colors || defaultColors;
+  
+  // Create a configuration object for the chart
+  const config: ChartConfig = categories.reduce(
+    (acc, category, i) => ({
+      ...acc,
+      [category]: {
+        label: category,
+        color: finalColors[i % finalColors.length],
+      },
+    }),
+    {}
+  );
+
+  return (
+    <ChartContainer config={config} {...props}>
+      <RechartsPrimitive.BarChart data={data} barGap={stack ? 0 : 2} layout="horizontal">
+        {showXAxis && (
+          <RechartsPrimitive.XAxis
+            dataKey={index}
+            axisLine={false}
+            tickLine={false}
+            tickMargin={10}
+            fontSize={12}
+            padding={{ left: 0, right: 0 }}
+          />
+        )}
+        {showYAxis && (
+          <RechartsPrimitive.YAxis
+            width={yAxisWidth}
+            axisLine={false}
+            tickLine={false}
+            tickMargin={10}
+            fontSize={12}
+            tickFormatter={(value) => valueFormatter ? valueFormatter(value) : value.toLocaleString()}
+            padding={{ top: 20, bottom: 0 }}
+            domain={startAt === "zero" ? [0, "auto"] : undefined}
+          />
+        )}
+        <RechartsPrimitive.CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />
+        {showLegend && (
+          <RechartsPrimitive.Legend
+            content={<ChartLegendContent />}
+            verticalAlign="top"
+            height={36}
+          />
+        )}
+        {categories.map((category, i) => (
+          <RechartsPrimitive.Bar
+            key={category}
+            dataKey={category}
+            fill={finalColors[i % finalColors.length]}
+            stackId={stack ? "stack" : undefined}
+            isAnimationActive={showAnimation}
+          >
+            {showGradient && (
+              <RechartsPrimitive.defs>
+                <RechartsPrimitive.linearGradient id={`gradient-${category}`} x1="0" y1="0" x2="0" y2="1">
+                  <RechartsPrimitive.stop offset="5%" stopColor={finalColors[i % finalColors.length]} stopOpacity={0.8} />
+                  <RechartsPrimitive.stop offset="95%" stopColor={finalColors[i % finalColors.length]} stopOpacity={0.2} />
+                </RechartsPrimitive.linearGradient>
+              </RechartsPrimitive.defs>
+            )}
+          </RechartsPrimitive.Bar>
+        ))}
+      </RechartsPrimitive.BarChart>
+    </ChartContainer>
+  );
+};
+
 export {
   ChartContainer,
   ChartTooltip,
@@ -360,4 +465,5 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  BarChart, // Export the BarChart component
 }
