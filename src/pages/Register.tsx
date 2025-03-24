@@ -21,33 +21,25 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { User } from '@/lib/types';
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState('');
-  const { login, isLoading } = useAuth();
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<User['role']>('patient');
+  const { register, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
-    await login(email, password);
-  };
-
-  // For demo: preset credentials
-  const presetCredentials = [
-    { role: 'Admin', email: 'admin@hospital.com', password: 'password' },
-    { role: 'Doctor', email: 'doctor@hospital.com', password: 'password' },
-    { role: 'Nurse', email: 'nurse@hospital.com', password: 'password' },
-    { role: 'Patient', email: 'patient@example.com', password: 'password' },
-    { role: 'Staff', email: 'staff@hospital.com', password: 'password' },
-    { role: 'Pharmacist', email: 'pharmacist@hospital.com', password: 'password' },
-  ];
-
-  const fillCredentials = (email: string, password: string) => {
-    setEmail(email);
-    setPassword(password);
+    if (!name || !email || !password || !role) return;
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+    await register(name, email, password, role);
   };
 
   return (
@@ -58,19 +50,30 @@ const Login: React.FC = () => {
             <div className="w-12 h-12 rounded-xl bg-hms-600 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4">
               H
             </div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Hospital Management System</h1>
-            <p className="text-muted-foreground">Login to access your account</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Create an Account</h1>
+            <p className="text-muted-foreground">Sign up to get started</p>
           </div>
           
           <Card className="border-border/40 shadow-lg">
             <CardHeader>
-              <CardTitle>Login</CardTitle>
+              <CardTitle>Register</CardTitle>
               <CardDescription>
-                Enter your credentials to access your account
+                Enter your information to create an account
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -84,41 +87,46 @@ const Login: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link 
-                      to="/forgot-password" 
-                      className="text-xs text-primary hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
                     required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
                   <Select 
-                    onValueChange={setSelectedRole} 
-                    value={selectedRole}
+                    onValueChange={(value) => setRole(value as User['role'])} 
+                    value={role}
+                    defaultValue="patient"
                   >
                     <SelectTrigger id="role">
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="patient">Patient</SelectItem>
                       <SelectItem value="doctor">Doctor</SelectItem>
                       <SelectItem value="nurse">Nurse</SelectItem>
-                      <SelectItem value="patient">Patient</SelectItem>
                       <SelectItem value="receptionist">Staff</SelectItem>
                       <SelectItem value="pharmacist">Pharmacist</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -129,38 +137,21 @@ const Login: React.FC = () => {
                   className="w-full bg-hms-600 hover:bg-hms-700" 
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? 'Registering...' : 'Register'}
                 </Button>
                 <div className="mt-4 text-center text-sm text-muted-foreground">
-                  Don't have an account?{' '}
-                  <Link to="/register" className="text-primary hover:underline">
-                    Sign up
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-primary hover:underline">
+                    Sign in
                   </Link>
                 </div>
               </CardFooter>
             </form>
           </Card>
-          
-          <div className="mt-8">
-            <p className="text-sm text-center text-muted-foreground mb-3">Demo accounts for testing</p>
-            <div className="grid grid-cols-3 gap-2">
-              {presetCredentials.map((cred) => (
-                <Button
-                  key={cred.role}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillCredentials(cred.email, cred.password)}
-                  className="text-xs"
-                >
-                  {cred.role}
-                </Button>
-              ))}
-            </div>
-          </div>
         </div>
       </FadeIn>
     </div>
   );
 };
 
-export default Login;
+export default Register;

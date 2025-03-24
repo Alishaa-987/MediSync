@@ -53,6 +53,24 @@ const mockUsers: User[] = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
+  {
+    id: '5',
+    name: 'Staff Member',
+    email: 'staff@hospital.com',
+    role: 'receptionist',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=staff',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: '6',
+    name: 'Pharmacist White',
+    email: 'pharmacist@hospital.com',
+    role: 'pharmacist',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=pharmacist',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

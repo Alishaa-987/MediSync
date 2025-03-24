@@ -444,12 +444,13 @@ const BarChart = ({
             isAnimationActive={showAnimation}
           >
             {showGradient && (
-              <RechartsPrimitive.defs>
-                <RechartsPrimitive.linearGradient id={`gradient-${category}`} x1="0" y1="0" x2="0" y2="1">
-                  <RechartsPrimitive.stop offset="5%" stopColor={finalColors[i % finalColors.length]} stopOpacity={0.8} />
-                  <RechartsPrimitive.stop offset="95%" stopColor={finalColors[i % finalColors.length]} stopOpacity={0.2} />
-                </RechartsPrimitive.linearGradient>
-              </RechartsPrimitive.defs>
+              // Using string elements directly instead of the recharts components that were causing type errors
+              <defs>
+                <linearGradient id={`gradient-${category}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={finalColors[i % finalColors.length]} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={finalColors[i % finalColors.length]} stopOpacity={0.2} />
+                </linearGradient>
+              </defs>
             )}
           </RechartsPrimitive.Bar>
         ))}
@@ -465,5 +466,5 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
-  BarChart, // Export the BarChart component
+  BarChart,
 }
