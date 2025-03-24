@@ -21,11 +21,13 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -35,42 +37,32 @@ const Login: React.FC = () => {
     await login(email, password);
   };
 
-  // For demo: preset credentials
-  const presetCredentials = [
-    { role: 'Admin', email: 'admin@hospital.com', password: 'password' },
-    { role: 'Doctor', email: 'doctor@hospital.com', password: 'password' },
-    { role: 'Nurse', email: 'nurse@hospital.com', password: 'password' },
-    { role: 'Patient', email: 'patient@example.com', password: 'password' },
-    { role: 'Staff', email: 'staff@hospital.com', password: 'password' },
-    { role: 'Pharmacist', email: 'pharmacist@hospital.com', password: 'password' },
-  ];
-
-  const fillCredentials = (email: string, password: string) => {
-    setEmail(email);
-    setPassword(password);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-gradient-to-b from-hms-50/50 to-white">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-hms-100/80 to-white">
       <FadeIn>
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="w-12 h-12 rounded-xl bg-hms-600 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-hms-600 flex items-center justify-center text-white font-bold text-3xl mx-auto mb-6 shadow-lg">
               H
             </div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Hospital Management System</h1>
-            <p className="text-muted-foreground">Login to access your account</p>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">Hospital Management System</h1>
+            <p className="text-muted-foreground text-lg">Welcome back! Please sign in to continue</p>
           </div>
           
-          <Card className="border-border/40 shadow-lg">
-            <CardHeader>
-              <CardTitle>Login</CardTitle>
+          <Card className="border-border/40 shadow-xl overflow-hidden">
+            <div className="h-2 bg-gradient-to-r from-hms-400 to-hms-600"></div>
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl">Sign In</CardTitle>
               <CardDescription>
                 Enter your credentials to access your account
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -80,6 +72,7 @@ const Login: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
+                    className="h-11"
                     required
                   />
                 </div>
@@ -88,20 +81,36 @@ const Login: React.FC = () => {
                     <Label htmlFor="password">Password</Label>
                     <Link 
                       to="/forgot-password" 
-                      className="text-xs text-primary hover:underline"
+                      className="text-xs text-hms-600 hover:text-hms-700 hover:underline"
                     >
                       Forgot password?
                     </Link>
                   </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      className="h-11 pr-10"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-11 w-11 px-0"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
@@ -109,7 +118,7 @@ const Login: React.FC = () => {
                     onValueChange={setSelectedRole} 
                     value={selectedRole}
                   >
-                    <SelectTrigger id="role">
+                    <SelectTrigger id="role" className="h-11">
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
                     <SelectContent>
@@ -123,40 +132,27 @@ const Login: React.FC = () => {
                   </Select>
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-col">
+              <CardFooter className="flex flex-col pt-2 pb-6">
                 <Button 
                   type="submit" 
-                  className="w-full bg-hms-600 hover:bg-hms-700" 
+                  className="w-full h-11 bg-hms-600 hover:bg-hms-700 transition-all" 
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? 'Signing in...' : (
+                    <>
+                      <LogIn className="mr-2 h-4 w-4" /> Sign In
+                    </>
+                  )}
                 </Button>
-                <div className="mt-4 text-center text-sm text-muted-foreground">
+                <div className="mt-6 text-center text-sm text-muted-foreground">
                   Don't have an account?{' '}
-                  <Link to="/register" className="text-primary hover:underline">
-                    Sign up
+                  <Link to="/register" className="text-hms-600 hover:text-hms-700 hover:underline font-medium">
+                    Create an account
                   </Link>
                 </div>
               </CardFooter>
             </form>
           </Card>
-          
-          <div className="mt-8">
-            <p className="text-sm text-center text-muted-foreground mb-3">Demo accounts for testing</p>
-            <div className="grid grid-cols-3 gap-2">
-              {presetCredentials.map((cred) => (
-                <Button
-                  key={cred.role}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillCredentials(cred.email, cred.password)}
-                  className="text-xs"
-                >
-                  {cred.role}
-                </Button>
-              ))}
-            </div>
-          </div>
         </div>
       </FadeIn>
     </div>
