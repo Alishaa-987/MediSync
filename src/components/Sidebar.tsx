@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
     { path: '/billing', label: 'Billing', icon: CreditCard },
     { path: '/pharmacy', label: 'Pharmacy', icon: Pill },
     { path: '/reports', label: 'Reports', icon: PieChart },
-    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/settings', label: 'Settings', icon: Settings }
   ];
 
   return (
@@ -102,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
                 <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
                 <span>{item.label}</span>
               </Link>
-            )}
+            );
           })}
         </nav>
         
