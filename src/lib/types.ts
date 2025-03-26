@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -137,6 +138,30 @@ export interface Treatment {
   medicationPrescribed: string;
   treatmentDate: Date;
   treatmentDetails: string;
+}
+
+export interface Disease {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  symptoms: string[];
+  treatments: string[];
+  riskFactors?: string[];
+  isCommunicable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  head: string;
+  staff: number;
+  description: string;
+  location: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface DashboardStats {

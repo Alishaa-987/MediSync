@@ -12,7 +12,11 @@ import {
   Stethoscope, 
   Menu, 
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  ClipboardList,
+  BedDouble,
+  HeartPulse,
+  Building
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -52,8 +56,20 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
     { path: '/settings', label: 'Settings', icon: Settings, permission: 'canManageSystem' }
   ];
 
+  // Management menu items only for admins and authorized staff
+  const managementItems: MenuItem[] = [
+    { path: '/ward-management', label: 'Ward Management', icon: BedDouble, permission: 'canManageSystem' },
+    { path: '/disease-management', label: 'Disease Management', icon: HeartPulse, permission: 'canManageSystem' },
+    { path: '/treatment-management', label: 'Treatment Management', icon: ClipboardList, permission: 'canManageSystem' },
+  ];
+
   // Filter menu items based on user permissions
   const authorizedMenuItems = menuItems.filter(item => 
+    hasPermission(user, item.permission)
+  );
+
+  // Filter management items based on permissions
+  const authorizedManagementItems = managementItems.filter(item => 
     hasPermission(user, item.permission)
   );
 
@@ -127,6 +143,61 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
               </Link>
             );
           })}
+
+          {/* Management Section (only if items are available) */}
+          {authorizedManagementItems.length > 0 && (
+            <>
+              {!collapsed && (
+                <div className="pt-4 pb-1">
+                  <div className="px-3">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Management
+                    </h3>
+                  </div>
+                </div>
+              )}
+              
+              {authorizedManagementItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                
+                return collapsed ? (
+                  <Tooltip key={item.path} delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center justify-center h-10 w-10 rounded-md my-1 mx-auto transition-colors",
+                          isActive 
+                            ? "bg-primary text-primary-foreground" 
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span className="sr-only">{item.label}</span>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      {item.label}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      isActive 
+                        ? "bg-primary text-primary-foreground" 
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 mr-3 flex-shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </>
+          )}
         </nav>
         
         <div className={cn(

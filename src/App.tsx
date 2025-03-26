@@ -19,6 +19,9 @@ import Register from "./pages/Register";
 import Pharmacy from "./pages/Pharmacy";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import WardManagement from "./pages/WardManagement";
+import DiseaseManagement from "./pages/DiseaseManagement";
+import TreatmentManagement from "./pages/TreatmentManagement";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +63,9 @@ const App = () => (
                 
                 <Route element={<ProtectedRoute requiredPermission="canManageSystem" />}>
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/ward-management" element={<WardManagement />} />
+                  <Route path="/disease-management" element={<DiseaseManagement />} />
+                  <Route path="/treatment-management" element={<TreatmentManagement />} />
                 </Route>
               </Route>
               
