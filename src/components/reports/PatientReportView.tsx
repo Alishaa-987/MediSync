@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CalendarIcon, PlusCircle, Edit, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
 
 interface PatientReportViewProps {
   patient: Patient;
@@ -94,7 +95,7 @@ const mockWards = [
   { id: 'W004', name: 'Pediatric Ward', capacity: 25, availableBeds: 10 },
 ];
 
-const mockBeds = [
+const mockBeds: Bed[] = [
   { id: 'B001', wardId: 'W001', status: 'available' },
   { id: 'B002', wardId: 'W001', status: 'available' },
   { id: 'B003', wardId: 'W001', status: 'available' },
@@ -107,6 +108,7 @@ const mockBeds = [
 ];
 
 const PatientReportView: React.FC<PatientReportViewProps> = ({ patient }) => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('general');
   const [visitDialogOpen, setVisitDialogOpen] = useState(false);
   const [admissionDialogOpen, setAdmissionDialogOpen] = useState(false);
@@ -121,6 +123,9 @@ const PatientReportView: React.FC<PatientReportViewProps> = ({ patient }) => {
     wardId: '',
     bedId: '',
   });
+
+  // Check if user has permission to modify patient data
+  const canModifyPatientData = user?.role === 'admin' || user?.role === 'doctor' || user?.role === 'nurse';
 
   const handleWardChange = (value: string) => {
     setSelectedWard(value);
@@ -221,25 +226,27 @@ const PatientReportView: React.FC<PatientReportViewProps> = ({ patient }) => {
                 </div>
               </div>
 
-              <div className="flex mt-6 space-x-3">
-                <Button 
-                  onClick={() => setVisitDialogOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <PlusCircle className="mr-1.5 h-4 w-4" />
-                  Record Visit
-                </Button>
-                {patient.admissionStatus !== 'admitted' && (
+              {canModifyPatientData && (
+                <div className="flex mt-6 space-x-3">
                   <Button 
-                    onClick={() => setAdmissionDialogOpen(true)}
-                    variant="outline"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                    onClick={() => setVisitDialogOpen(true)}
+                    className="bg-blue-600 hover:bg-blue-700"
                   >
                     <PlusCircle className="mr-1.5 h-4 w-4" />
-                    Admit Patient
+                    Record Visit
                   </Button>
-                )}
-              </div>
+                  {patient.admissionStatus !== 'admitted' && (
+                    <Button 
+                      onClick={() => setAdmissionDialogOpen(true)}
+                      variant="outline"
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <PlusCircle className="mr-1.5 h-4 w-4" />
+                      Admit Patient
+                    </Button>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -248,14 +255,16 @@ const PatientReportView: React.FC<PatientReportViewProps> = ({ patient }) => {
           <Card>
             <CardHeader className="bg-slate-50 flex flex-row items-center justify-between">
               <CardTitle>Visit History</CardTitle>
-              <Button 
-                onClick={() => setVisitDialogOpen(true)} 
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <PlusCircle className="mr-1.5 h-4 w-4" />
-                New Visit
-              </Button>
+              {canModifyPatientData && (
+                <Button 
+                  onClick={() => setVisitDialogOpen(true)} 
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <PlusCircle className="mr-1.5 h-4 w-4" />
+                  New Visit
+                </Button>
+              )}
             </CardHeader>
             <CardContent className="pt-4">
               <Table>
@@ -326,7 +335,7 @@ const PatientReportView: React.FC<PatientReportViewProps> = ({ patient }) => {
           <Card>
             <CardHeader className="bg-slate-50 flex flex-row items-center justify-between">
               <CardTitle>Admission History</CardTitle>
-              {patient.admissionStatus !== 'admitted' && (
+              {canModifyPatientData && patient.admissionStatus !== 'admitted' && (
                 <Button 
                   onClick={() => setAdmissionDialogOpen(true)} 
                   size="sm"

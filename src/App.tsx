@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
@@ -31,16 +32,37 @@ const App = () => (
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/patients" element={<Patients />} />
-              <Route path="/doctors" element={<Doctors />} />
-              <Route path="/appointments" element={<Appointments />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/pharmacy" element={<Pharmacy />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              
+              {/* Protected routes - require authentication */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/appointments" element={<Appointments />} />
+                
+                {/* Routes that require specific permissions */}
+                <Route element={<ProtectedRoute requiredPermission="canViewAllPatients" />}>
+                  <Route path="/patients" element={<Patients />} />
+                  <Route path="/doctors" element={<Doctors />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="canViewFinances" />}>
+                  <Route path="/billing" element={<Billing />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="canManagePharmacy" />}>
+                  <Route path="/pharmacy" element={<Pharmacy />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="canManageReports" />}>
+                  <Route path="/reports" element={<Reports />} />
+                </Route>
+                
+                <Route element={<ProtectedRoute requiredPermission="canManageSystem" />}>
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
+              </Route>
+              
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

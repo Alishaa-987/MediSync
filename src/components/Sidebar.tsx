@@ -18,11 +18,21 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/context/AuthContext';
+import { hasPermission } from '@/lib/permissions';
 
 interface SidebarProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
 }
+
+interface MenuItem {
+  path: string;
+  label: string;
+  icon: React.ElementType;
+  permission: keyof typeof rolePermissions[keyof typeof rolePermissions];
+}
+
+import { rolePermissions } from '@/lib/permissions';
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   const { user } = useAuth();
@@ -31,16 +41,29 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   // If no user, don't render the sidebar
   if (!user) return null;
 
-  const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/patients', label: 'Patients', icon: Users },
-    { path: '/doctors', label: 'Doctors', icon: Stethoscope },
-    { path: '/appointments', label: 'Appointments', icon: Calendar },
-    { path: '/billing', label: 'Billing', icon: CreditCard },
-    { path: '/pharmacy', label: 'Pharmacy', icon: Pill },
-    { path: '/reports', label: 'Reports', icon: PieChart },
-    { path: '/settings', label: 'Settings', icon: Settings }
+  const menuItems: MenuItem[] = [
+    { path: '/dashboard', label: 'Dashboard', icon: Home, permission: 'canViewAllPatients' },
+    { path: '/patients', label: 'Patients', icon: Users, permission: 'canViewAllPatients' },
+    { path: '/doctors', label: 'Doctors', icon: Stethoscope, permission: 'canViewAllPatients' },
+    { path: '/appointments', label: 'Appointments', icon: Calendar, permission: 'canBookAppointment' },
+    { path: '/billing', label: 'Billing', icon: CreditCard, permission: 'canViewFinances' },
+    { path: '/pharmacy', label: 'Pharmacy', icon: Pill, permission: 'canManagePharmacy' },
+    { path: '/reports', label: 'Reports', icon: PieChart, permission: 'canManageReports' },
+    { path: '/settings', label: 'Settings', icon: Settings, permission: 'canManageSystem' }
   ];
+
+  // Filter menu items based on user permissions
+  const authorizedMenuItems = menuItems.filter(item => 
+    hasPermission(user, item.permission)
+  );
+
+  // Always show dashboard and appointments for patients
+  if (user.role === 'patient') {
+    authorizedMenuItems.push(
+      { path: '/dashboard', label: 'Dashboard', icon: Home, permission: 'canBookAppointment' },
+      { path: '/appointments', label: 'Appointments', icon: Calendar, permission: 'canBookAppointment' }
+    );
+  }
 
   return (
     <aside 
@@ -65,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
         </div>
         
         <nav className="space-y-1 flex-1">
-          {menuItems.map((item) => {
+          {authorizedMenuItems.map((item) => {
             const isActive = location.pathname === item.path;
             
             return collapsed ? (
