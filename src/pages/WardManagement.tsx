@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -450,8 +449,8 @@ const WardManagement: React.FC = () => {
                           <TableCell>
                             <Badge 
                               variant={
-                                bed.status === 'available' ? "success" : 
-                                bed.status === 'occupied' ? "secondary" : 
+                                bed.status === 'available' ? "secondary" : 
+                                bed.status === 'occupied' ? "outline" : 
                                 "destructive"
                               }
                             >
