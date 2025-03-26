@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -20,6 +19,12 @@ export interface Patient {
   bloodType?: string;
   medicalHistory?: string;
   emergencyContact?: string;
+  isAdmitted?: boolean;
+  admissionDate?: Date;
+  dischargeDate?: Date;
+  wardId?: string;
+  bedId?: string;
+  admissionStatus?: 'admitted' | 'discharged' | 'outpatient';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -90,6 +95,48 @@ export interface Medicine {
   expiryDate: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Ward {
+  id: string;
+  name: string;
+  capacity: number;
+  availableBeds: number;
+  description?: string;
+}
+
+export interface Bed {
+  id: string;
+  wardId: string;
+  status: 'available' | 'occupied' | 'maintenance';
+  patientId?: string;
+}
+
+export interface Admission {
+  id: string;
+  patientId: string;
+  patientName: string;
+  admissionDate: Date;
+  dischargeDate?: Date;
+  wardId: string;
+  wardName: string;
+  bedId: string;
+  diagnosis: string;
+  doctorId: string;
+  doctorName: string;
+  status: 'active' | 'discharged';
+  notes?: string;
+}
+
+export interface Treatment {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  diseaseId: string;
+  diseaseName: string;
+  medicationPrescribed: string;
+  treatmentDate: Date;
+  treatmentDetails: string;
 }
 
 export interface DashboardStats {

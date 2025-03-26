@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Printer, Search, ArrowRight } from 'lucide-react';
+import { FileText, Download, Printer, Search, ArrowRight, Filter, Calendar } from 'lucide-react';
 import FadeIn from '@/components/animations/FadeIn';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Patient, Medicine } from '@/lib/types';
@@ -12,6 +11,12 @@ import { toast } from 'sonner';
 import PatientReportView from '@/components/reports/PatientReportView';
 import FinancialReportView from '@/components/reports/FinancialReportView';
 import InventoryReportView from '@/components/reports/InventoryReportView';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DateRange } from 'react-day-picker';
+import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 
 // Mock data for patient reports
 const mockPatients: Patient[] = Array.from({ length: 10 }, (_, i) => ({
@@ -78,6 +83,11 @@ const Reports: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>({
+    from: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+    to: new Date()
+  });
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
 
   const filteredPatients = mockPatients.filter(
     patient => patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,9 +98,22 @@ const Reports: React.FC = () => {
     setIsGeneratingReport(true);
     setSearchDialogOpen(false);
     
+    // Enhance patient data to show admission features
+    const enhancedPatient = {
+      ...patient,
+      // Randomly assign admission status for demonstration
+      admissionStatus: Math.random() > 0.7 ? 'admitted' : 'outpatient',
+      // If admitted, add admission details
+      ...(Math.random() > 0.7 ? {
+        admissionDate: new Date(Date.now() - Math.random() * 1000000000),
+        wardId: 'W001',
+        bedId: 'B003'
+      } : {})
+    };
+    
     // Simulate report generation delay
     setTimeout(() => {
-      setSelectedPatient(patient);
+      setSelectedPatient(enhancedPatient);
       setReportType('patient');
       setIsDialogOpen(true);
       setIsGeneratingReport(false);
@@ -100,8 +123,14 @@ const Reports: React.FC = () => {
   const handleGenerateFinancialReport = () => {
     setIsGeneratingReport(true);
     
-    // Simulate report generation delay
+    // Simulate report generation delay with filter applications
     setTimeout(() => {
+      toast.success(`Financial report generated for ${
+        selectedDateRange?.from && selectedDateRange?.to 
+          ? `${format(selectedDateRange.from, 'MMM d, yyyy')} to ${format(selectedDateRange.to, 'MMM d, yyyy')}`
+          : 'all time'
+      }${departmentFilter !== 'all' ? ` in ${departmentFilter} department` : ''}`);
+      
       setReportType('financial');
       setIsDialogOpen(true);
       setIsGeneratingReport(false);
@@ -120,7 +149,7 @@ const Reports: React.FC = () => {
   };
 
   const handleDownloadReport = () => {
-    toast.success("Report downloaded successfully");
+    toast.success(`Report downloaded as PDF`);
     setIsDialogOpen(false);
   };
 
@@ -184,8 +213,64 @@ const Reports: React.FC = () => {
                 Revenue and expense reports
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
-              <p className="mb-4">Generate financial reports with revenue metrics, expense breakdowns, and profitability analysis.</p>
+            <CardContent className="pt-4 space-y-3">
+              <p>Generate financial reports with revenue metrics, expense breakdowns, and profitability analysis.</p>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-xs font-medium mb-1">Date Range</p>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-xs h-9"
+                      >
+                        <Calendar className="mr-2 h-3 w-3" />
+                        {selectedDateRange?.from ? (
+                          selectedDateRange.to ? (
+                            <>
+                              {format(selectedDateRange.from, "LLL d")} -{" "}
+                              {format(selectedDateRange.to, "LLL d, y")}
+                            </>
+                          ) : (
+                            format(selectedDateRange.from, "LLL d, y")
+                          )
+                        ) : (
+                          <span>Pick a date range</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent
+                        initialFocus
+                        mode="range"
+                        defaultMonth={selectedDateRange?.from}
+                        selected={selectedDateRange}
+                        onSelect={setSelectedDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div>
+                  <p className="text-xs font-medium mb-1">Department</p>
+                  <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                    <SelectTrigger className="w-full h-9">
+                      <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      <SelectItem value="cardiology">Cardiology</SelectItem>
+                      <SelectItem value="orthopedics">Orthopedics</SelectItem>
+                      <SelectItem value="neurology">Neurology</SelectItem>
+                      <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                      <SelectItem value="general">General Medicine</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
               {isGeneratingReport && reportType === 'financial' ? (
                 <div className="flex justify-center items-center h-10">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-700"></div>
@@ -215,6 +300,15 @@ const Reports: React.FC = () => {
             </CardHeader>
             <CardContent className="pt-4">
               <p className="mb-4">Generate inventory reports displaying current stock levels, expiry dates, and reorder recommendations.</p>
+              
+              <Tabs defaultValue="all" className="w-full mb-4">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="all">All Items</TabsTrigger>
+                  <TabsTrigger value="lowstock">Low Stock</TabsTrigger>
+                  <TabsTrigger value="expiring">Expiring Soon</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              
               {isGeneratingReport && reportType === 'inventory' ? (
                 <div className="flex justify-center items-center h-10">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-700"></div>
