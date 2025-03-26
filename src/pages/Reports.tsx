@@ -6,7 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { Label } from '@/components/ui/label';
-import { Download, Printer, Search, FileText, Database, TrendingUp } from 'lucide-react';
+import { 
+  Download, 
+  Printer, 
+  Search, 
+  FileText, 
+  Database, 
+  TrendingUp,
+  Building,
+  Stethoscope,
+  Bed,
+  Activity
+} from 'lucide-react';
 import PatientReportView from '@/components/reports/PatientReportView';
 import FinancialReportView from '@/components/reports/FinancialReportView';
 import InventoryReportView from '@/components/reports/InventoryReportView';
@@ -15,7 +26,6 @@ import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { hasPermission } from '@/lib/permissions';
 
-// Mock patient data
 const mockPatients = [
   {
     id: "P0001",
@@ -71,7 +81,6 @@ const mockPatients = [
   }
 ];
 
-// Mock financial data for the financial report
 const mockFinancialData = {
   totalRevenue: 1250000,
   totalExpenses: 875000,
@@ -94,7 +103,6 @@ const mockFinancialData = {
   ]
 };
 
-// Mock medicine data for the inventory report
 const mockMedicines: Medicine[] = [
   {
     id: "M001",
@@ -175,6 +183,39 @@ const mockMedicines: Medicine[] = [
   }
 ];
 
+const mockDepartments = [
+  { id: "D001", name: "General Medicine", head: "Dr. John Smith", staff: 12, patients: 45 },
+  { id: "D002", name: "Cardiology", head: "Dr. Sarah Johnson", staff: 8, patients: 32 },
+  { id: "D003", name: "Orthopedics", head: "Dr. Michael Brown", staff: 10, patients: 28 },
+  { id: "D004", name: "Pediatrics", head: "Dr. Emily Wilson", staff: 15, patients: 40 },
+  { id: "D005", name: "Neurology", head: "Dr. David Lee", staff: 7, patients: 22 },
+  { id: "D006", name: "Gynecology", head: "Dr. Lisa Thompson", staff: 9, patients: 35 }
+];
+
+const mockTreatments = [
+  { id: "T001", name: "Physical Therapy", department: "Orthopedics", patients: 18, sessions: 245 },
+  { id: "T002", name: "Chemotherapy", department: "Oncology", patients: 12, sessions: 180 },
+  { id: "T003", name: "Dialysis", department: "Nephrology", patients: 15, sessions: 210 },
+  { id: "T004", name: "Radiation Therapy", department: "Oncology", patients: 8, sessions: 120 },
+  { id: "T005", name: "Cognitive Behavioral Therapy", department: "Psychiatry", patients: 20, sessions: 160 }
+];
+
+const mockWards = [
+  { id: "W001", name: "General Ward", beds: 20, occupied: 15, availability: "75%" },
+  { id: "W002", name: "ICU", beds: 10, occupied: 8, availability: "80%" },
+  { id: "W003", name: "Pediatric Ward", beds: 15, occupied: 10, availability: "67%" },
+  { id: "W004", name: "Maternity Ward", beds: 12, occupied: 7, availability: "58%" },
+  { id: "W005", name: "Surgical Ward", beds: 18, occupied: 12, availability: "67%" }
+];
+
+const mockDiseases = [
+  { id: "DIS001", name: "Hypertension", patients: 45, department: "Cardiology", treatmentSuccess: "82%" },
+  { id: "DIS002", name: "Diabetes", patients: 38, department: "Endocrinology", treatmentSuccess: "75%" },
+  { id: "DIS003", name: "Asthma", patients: 27, department: "Pulmonology", treatmentSuccess: "88%" },
+  { id: "DIS004", name: "Arthritis", patients: 33, department: "Orthopedics", treatmentSuccess: "70%" },
+  { id: "DIS005", name: "Pneumonia", patients: 22, department: "Pulmonology", treatmentSuccess: "92%" }
+];
+
 const Reports: React.FC = () => {
   const { user } = useAuth();
   const [selectedReportType, setSelectedReportType] = useState('patient');
@@ -184,7 +225,6 @@ const Reports: React.FC = () => {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
 
-  // Check permissions
   const canGenerateReports = hasPermission(user, 'canGenerateReports');
 
   const filteredPatients = searchTerm 
@@ -203,14 +243,13 @@ const Reports: React.FC = () => {
   };
 
   const handleGenerateReport = () => {
-    if (!selectedPatientId && selectedReportType === 'patient') {
+    if (selectedReportType === 'patient' && !selectedPatientId) {
       toast.error('Please select a patient first');
       return;
     }
 
     setIsGeneratingReport(true);
     
-    // Simulate API call delay
     setTimeout(() => {
       setIsGeneratingReport(false);
       setReportGenerated(true);
@@ -226,9 +265,123 @@ const Reports: React.FC = () => {
     toast.success('Sending report to printer...');
   };
 
-  // Conditionally render content based on user role
+  const renderDepartmentsReport = () => (
+    <div className="mt-4">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Department Name</th>
+              <th className="p-2 text-left">Department Head</th>
+              <th className="p-2 text-left">Staff Count</th>
+              <th className="p-2 text-left">Patient Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mockDepartments.map((dept) => (
+              <tr key={dept.id} className="border-b border-border hover:bg-muted/50">
+                <td className="p-2">{dept.id}</td>
+                <td className="p-2 font-medium">{dept.name}</td>
+                <td className="p-2">{dept.head}</td>
+                <td className="p-2">{dept.staff}</td>
+                <td className="p-2">{dept.patients}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderTreatmentsReport = () => (
+    <div className="mt-4">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Treatment</th>
+              <th className="p-2 text-left">Department</th>
+              <th className="p-2 text-left">Patients</th>
+              <th className="p-2 text-left">Total Sessions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mockTreatments.map((treatment) => (
+              <tr key={treatment.id} className="border-b border-border hover:bg-muted/50">
+                <td className="p-2">{treatment.id}</td>
+                <td className="p-2 font-medium">{treatment.name}</td>
+                <td className="p-2">{treatment.department}</td>
+                <td className="p-2">{treatment.patients}</td>
+                <td className="p-2">{treatment.sessions}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderWardsAndBedsReport = () => (
+    <div className="mt-4">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Ward Name</th>
+              <th className="p-2 text-left">Total Beds</th>
+              <th className="p-2 text-left">Occupied Beds</th>
+              <th className="p-2 text-left">Availability</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mockWards.map((ward) => (
+              <tr key={ward.id} className="border-b border-border hover:bg-muted/50">
+                <td className="p-2">{ward.id}</td>
+                <td className="p-2 font-medium">{ward.name}</td>
+                <td className="p-2">{ward.beds}</td>
+                <td className="p-2">{ward.occupied}</td>
+                <td className="p-2">{ward.availability}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderDiseasesReport = () => (
+    <div className="mt-4">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Disease</th>
+              <th className="p-2 text-left">Department</th>
+              <th className="p-2 text-left">Patients</th>
+              <th className="p-2 text-left">Treatment Success Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mockDiseases.map((disease) => (
+              <tr key={disease.id} className="border-b border-border hover:bg-muted/50">
+                <td className="p-2">{disease.id}</td>
+                <td className="p-2 font-medium">{disease.name}</td>
+                <td className="p-2">{disease.department}</td>
+                <td className="p-2">{disease.patients}</td>
+                <td className="p-2">{disease.treatmentSuccess}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   if (user?.role === 'patient') {
-    // Patient can only see their own reports
     return (
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -280,22 +433,42 @@ const Reports: React.FC = () => {
       </div>
 
       <Tabs defaultValue="patient" onValueChange={setSelectedReportType}>
-        <TabsList>
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 w-full">
           <TabsTrigger value="patient" className="flex">
             <FileText className="mr-2 h-4 w-4" />
-            Patient Reports
+            Patient
           </TabsTrigger>
           {hasPermission(user, 'canViewFinances') && (
             <TabsTrigger value="financial" className="flex">
               <TrendingUp className="mr-2 h-4 w-4" />
-              Financial Reports
+              Financial
             </TabsTrigger>
           )}
           {hasPermission(user, 'canManagePharmacy') && (
             <TabsTrigger value="inventory" className="flex">
               <Database className="mr-2 h-4 w-4" />
-              Inventory Reports
+              Inventory
             </TabsTrigger>
+          )}
+          {hasPermission(user, 'canManageReports') && (
+            <>
+              <TabsTrigger value="departments" className="flex">
+                <Building className="mr-2 h-4 w-4" />
+                Departments
+              </TabsTrigger>
+              <TabsTrigger value="treatments" className="flex">
+                <Stethoscope className="mr-2 h-4 w-4" />
+                Treatments
+              </TabsTrigger>
+              <TabsTrigger value="wards" className="flex">
+                <Bed className="mr-2 h-4 w-4" />
+                Wards & Beds
+              </TabsTrigger>
+              <TabsTrigger value="diseases" className="flex">
+                <Activity className="mr-2 h-4 w-4" />
+                Diseases
+              </TabsTrigger>
+            </>
           )}
         </TabsList>
 
@@ -476,6 +649,138 @@ const Reports: React.FC = () => {
                       </Button>
                     </div>
                     <InventoryReportView medicines={mockMedicines} />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="departments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Departments Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6">
+                <div className="flex justify-end">
+                  <Button onClick={handleGenerateReport} disabled={isGeneratingReport}>
+                    {isGeneratingReport ? 'Generating...' : 'Generate Report'}
+                  </Button>
+                </div>
+
+                {reportGenerated && (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={handleDownloadReport}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Report
+                      </Button>
+                      <Button variant="outline" onClick={handlePrintReport}>
+                        <Printer className="mr-2 h-4 w-4" />
+                        Print Report
+                      </Button>
+                    </div>
+                    {renderDepartmentsReport()}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="treatments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Treatments Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6">
+                <div className="flex justify-end">
+                  <Button onClick={handleGenerateReport} disabled={isGeneratingReport}>
+                    {isGeneratingReport ? 'Generating...' : 'Generate Report'}
+                  </Button>
+                </div>
+
+                {reportGenerated && (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={handleDownloadReport}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Report
+                      </Button>
+                      <Button variant="outline" onClick={handlePrintReport}>
+                        <Printer className="mr-2 h-4 w-4" />
+                        Print Report
+                      </Button>
+                    </div>
+                    {renderTreatmentsReport()}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="wards">
+          <Card>
+            <CardHeader>
+              <CardTitle>Wards & Beds Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6">
+                <div className="flex justify-end">
+                  <Button onClick={handleGenerateReport} disabled={isGeneratingReport}>
+                    {isGeneratingReport ? 'Generating...' : 'Generate Report'}
+                  </Button>
+                </div>
+
+                {reportGenerated && (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={handleDownloadReport}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Report
+                      </Button>
+                      <Button variant="outline" onClick={handlePrintReport}>
+                        <Printer className="mr-2 h-4 w-4" />
+                        Print Report
+                      </Button>
+                    </div>
+                    {renderWardsAndBedsReport()}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="diseases">
+          <Card>
+            <CardHeader>
+              <CardTitle>Diseases Reports</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6">
+                <div className="flex justify-end">
+                  <Button onClick={handleGenerateReport} disabled={isGeneratingReport}>
+                    {isGeneratingReport ? 'Generating...' : 'Generate Report'}
+                  </Button>
+                </div>
+
+                {reportGenerated && (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={handleDownloadReport}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Report
+                      </Button>
+                      <Button variant="outline" onClick={handlePrintReport}>
+                        <Printer className="mr-2 h-4 w-4" />
+                        Print Report
+                      </Button>
+                    </div>
+                    {renderDiseasesReport()}
                   </div>
                 )}
               </div>
