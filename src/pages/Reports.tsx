@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -11,7 +10,7 @@ import { Download, Printer, Search, FileText, Database, TrendingUp } from 'lucid
 import PatientReportView from '@/components/reports/PatientReportView';
 import FinancialReportView from '@/components/reports/FinancialReportView';
 import InventoryReportView from '@/components/reports/InventoryReportView';
-import { Patient } from '@/lib/types';
+import { Patient, Medicine } from '@/lib/types';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { hasPermission } from '@/lib/permissions';
@@ -69,6 +68,110 @@ const mockPatients = [
     bedId: "B010",
     createdAt: new Date(2021, 11, 5),
     updatedAt: new Date(2023, 2, 10)
+  }
+];
+
+// Mock financial data for the financial report
+const mockFinancialData = {
+  totalRevenue: 1250000,
+  totalExpenses: 875000,
+  netProfit: 375000,
+  unpaidInvoices: 125000,
+  revenueByDepartment: [
+    { department: "General Medicine", amount: 350000 },
+    { department: "Cardiology", amount: 280000 },
+    { department: "Orthopedics", amount: 210000 },
+    { department: "Pediatrics", amount: 180000 },
+    { department: "Neurology", amount: 150000 },
+    { department: "Gynecology", amount: 80000 }
+  ],
+  expenseCategories: [
+    { category: "Staff Salaries", amount: 450000 },
+    { category: "Medical Supplies", amount: 180000 },
+    { category: "Equipment", amount: 120000 },
+    { category: "Facility Maintenance", amount: 75000 },
+    { category: "Administrative", amount: 50000 }
+  ]
+};
+
+// Mock medicine data for the inventory report
+const mockMedicines: Medicine[] = [
+  {
+    id: "M001",
+    name: "Amoxicillin",
+    description: "Broad-spectrum antibiotic",
+    category: "Antibiotics",
+    quantity: 250,
+    unitPrice: 12.99,
+    expiryDate: new Date(2024, 11, 15),
+    createdAt: new Date(2022, 1, 15),
+    updatedAt: new Date(2023, 6, 20)
+  },
+  {
+    id: "M002",
+    name: "Lisinopril",
+    description: "ACE inhibitor for blood pressure",
+    category: "Cardiovascular",
+    quantity: 180,
+    unitPrice: 15.50,
+    expiryDate: new Date(2024, 8, 23),
+    createdAt: new Date(2022, 3, 10),
+    updatedAt: new Date(2023, 5, 5)
+  },
+  {
+    id: "M003",
+    name: "Ibuprofen",
+    description: "NSAID pain reliever",
+    category: "Pain Management",
+    quantity: 350,
+    unitPrice: 8.75,
+    expiryDate: new Date(2024, 10, 30),
+    createdAt: new Date(2022, 2, 20),
+    updatedAt: new Date(2023, 7, 12)
+  },
+  {
+    id: "M004",
+    name: "Metformin",
+    description: "Oral diabetes medication",
+    category: "Diabetes",
+    quantity: 120,
+    unitPrice: 18.25,
+    expiryDate: new Date(2024, 7, 15),
+    createdAt: new Date(2022, 4, 5),
+    updatedAt: new Date(2023, 8, 18)
+  },
+  {
+    id: "M005",
+    name: "Atorvastatin",
+    description: "Statin medication for cholesterol",
+    category: "Cardiovascular",
+    quantity: 200,
+    unitPrice: 22.50,
+    expiryDate: new Date(2024, 9, 10),
+    createdAt: new Date(2022, 5, 12),
+    updatedAt: new Date(2023, 9, 8)
+  },
+  {
+    id: "M006",
+    name: "Albuterol",
+    description: "Bronchodilator for asthma",
+    category: "Respiratory",
+    quantity: 80,
+    unitPrice: 25.99,
+    expiryDate: new Date(2023, 12, 28),
+    createdAt: new Date(2022, 6, 8),
+    updatedAt: new Date(2023, 10, 15)
+  },
+  {
+    id: "M007",
+    name: "Levothyroxine",
+    description: "Thyroid hormone replacement",
+    category: "Hormones",
+    quantity: 25,
+    unitPrice: 14.75,
+    expiryDate: new Date(2024, 3, 5),
+    createdAt: new Date(2022, 7, 22),
+    updatedAt: new Date(2023, 11, 3)
   }
 ];
 
@@ -307,7 +410,7 @@ const Reports: React.FC = () => {
                         Print Report
                       </Button>
                     </div>
-                    <FinancialReportView />
+                    <FinancialReportView financialData={mockFinancialData} />
                   </div>
                 )}
               </div>
@@ -372,7 +475,7 @@ const Reports: React.FC = () => {
                         Print Report
                       </Button>
                     </div>
-                    <InventoryReportView />
+                    <InventoryReportView medicines={mockMedicines} />
                   </div>
                 )}
               </div>
